@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SibersTask.Presentation", "SibersTask.Presentation\SibersTask.Presentation.csproj", "{3A77E662-B812-4351-94D2-57503B5C434E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F} = {2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}
+		{784DB211-82F2-4370-B251-BCBA86A78842} = {784DB211-82F2-4370-B251-BCBA86A78842}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SibersTask.Domain", "SibersTask.Domain\SibersTask.Domain.csproj", "{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SibersTask.Infrastructure", "SibersTask.Infrastructure\SibersTask.Infrastructure.csproj", "{3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F} = {2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SibersTask.BusinessLogic", "SibersTask.BusinessLogic\SibersTask.BusinessLogic.csproj", "{784DB211-82F2-4370-B251-BCBA86A78842}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F} = {2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}
+		{3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E} = {3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorPage", "BlazorPage\BlazorPage.csproj", "{3E79F687-AEE7-403E-B871-32F1960F62FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A77E662-B812-4351-94D2-57503B5C434E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A77E662-B812-4351-94D2-57503B5C434E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A77E662-B812-4351-94D2-57503B5C434E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A77E662-B812-4351-94D2-57503B5C434E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A93B44C-44CF-4730-B9A6-1AFF700E7D3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BD6F07A-4ED2-483D-86CE-E9EDFAB2D70E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{784DB211-82F2-4370-B251-BCBA86A78842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{784DB211-82F2-4370-B251-BCBA86A78842}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{784DB211-82F2-4370-B251-BCBA86A78842}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{784DB211-82F2-4370-B251-BCBA86A78842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E79F687-AEE7-403E-B871-32F1960F62FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E79F687-AEE7-403E-B871-32F1960F62FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E79F687-AEE7-403E-B871-32F1960F62FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E79F687-AEE7-403E-B871-32F1960F62FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
