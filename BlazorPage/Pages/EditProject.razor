@@ -1,0 +1,143 @@
+﻿@page "/projects/edit/{id:int}"
+@using System.ComponentModel.DataAnnotations
+@using BlazorPage.Models
+@using BlazorPage.Shared
+@inject HttpClient Http
+
+<h3>Изменение проекта</h3>
+
+<EditForm Model="@project" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Название проекта</label>
+        <InputText id="name" class="form-control" @bind-Value="project.Name" />
+        <ValidationMessage For="@(() => project.Name)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Описание</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="project.Description" />
+        <ValidationMessage For="@(() => project.Description)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="startDate" class="form-label">Дата начала</label>
+        <InputDate id="startDate" class="form-control" @bind-Value="project.StartDate" />
+        <ValidationMessage For="@(() => project.StartDate)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="endDate" class="form-label">Дата окончания</label>
+        <InputDate id="endDate" class="form-control" @bind-Value="project.EndDate" />
+        <ValidationMessage For="@(() => project.EndDate)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="priority" class="form-label">Приоритет (целое число)</label>
+        <InputNumber id="priority" class="form-control" @bind-Value="project.Priority" />
+        <ValidationMessage For="@(() => project.Priority)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="customerCompany" class="form-label">Компания-заказчик</label>
+        <InputText id="customerCompany" class="form-control" @bind-Value="project.CustomerCompany" />
+        <ValidationMessage For="@(() => project.CustomerCompany)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="executorCompany" class="form-label">Компания-исполнитель</label>
+        <InputText id="executorCompany" class="form-control" @bind-Value="project.ExecutorCompany" />
+        <ValidationMessage For="@(() => project.ExecutorCompany)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Руководитель проекта</label>
+        <EmployeeSearchDropdown SelectedEmployeeId="@project.ManagerId"
+        SelectedEmployeeIdChanged="@(id => project.ManagerId = id)"
+        Placeholder="Начните вводить ФИО руководителя" />
+        <ValidationMessage For="@(() => project.ManagerId)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Исполнители проекта</label>
+        <EmployeeSearchDropdown SelectedEmployeeId="@(project.EmployeeIds.FirstOrDefault())"
+        SelectedEmployeeIdChanged="@AddEmployee"
+        Placeholder="Начните вводить ФИО исполнителя" />
+        @if (project.EmployeeIds.Any())
+        {
+            <div class="mt-2">
+                @foreach (var empId in project.EmployeeIds)
+                {
+                    <span class="badge bg-primary me-2">
+                        @GetEmployeeName(empId)
+                        <button type="button" class="btn-close btn-close-white btn-sm" @onclick="@(() => RemoveEmployee(empId))"></button>
+                    </span>
+                }
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Изменить проект</button>
+</EditForm>
+
+@if (successMessage != null)
+{
+    <div class="alert alert-success mt-3">@successMessage</div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private ProjectModel project = new();
+    private string? successMessage;
+    private Dictionary<int, string> employeeNames = new();
+
+    private async Task AddEmployee(int employeeId)
+    {
+        if (employeeId > 0 && !project.EmployeeIds.Contains(employeeId))
+        {
+            project.EmployeeIds.Add(employeeId);
+            await LoadEmployeeName(employeeId);
+        }
+    }
+
+    private void RemoveEmployee(int employeeId)
+    {
+        project.EmployeeIds.Remove(employeeId);
+    }
+
+    private string GetEmployeeName(int employeeId)
+    {
+        return employeeNames.TryGetValue(employeeId, out var name) ? name : "Загрузка...";
+    }
+
+    private async Task LoadEmployeeName(int employeeId)
+    {
+        if (!employeeNames.ContainsKey(employeeId))
+        {
+            var employee = await Http.GetFromJsonAsync<EmployeeModel>($"api/employee/{employeeId}");
+            if (employee != null)
+            {
+                employeeNames[employeeId] = $"{employee.LastName} {employee.FirstName} {employee.MiddleName}";
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        project.Id = Id;
+        var response = await Http.PutAsJsonAsync($"api/projects/{Id}", project);
+
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Проект успешно создан!";
+            project = new(); // если нужно очистить форму
+        }
+        else
+        {
+            successMessage = $"Ошибка при создании проекта: {response.ReasonPhrase}";
+        }
+    }
+}

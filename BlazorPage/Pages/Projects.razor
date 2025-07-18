@@ -1,0 +1,119 @@
+﻿@page "/projects"
+@inject HttpClient Http
+@using BlazorPage.Models
+@using System.ComponentModel.DataAnnotations
+
+<h3>Список проектов</h3>
+
+@if (projects == null)
+{
+    <p>Загрузка данных...</p>
+}
+else if (!projects.Any())
+{
+    <p>Проекты не найдены</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Дата начала</th>
+                    <th>Дата окончания</th>
+                    <th>Приоритет</th>
+                    <th>Руководитель</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var project in projects)
+                {
+                    <tr>
+                        <td>@project.Id</td>
+                        <td>@project.Name</td>
+                        <td>@project.StartDate.ToString("dd.MM.yyyy")</td>
+                        <td>@project.EndDate.ToString("dd.MM.yyyy")</td>
+                        <td>@project.Priority</td>
+                        <td>@GetManagerName(project.ManagerId)</td>
+                        <td>
+                            <a href="@($"projects/edit/{project.Id}")" class="btn btn-sm btn-primary">Редактировать</a>
+                            <button @onclick="@(() => DeleteProject(project.Id))" class="btn btn-sm btn-danger">Удалить</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private class Project
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string CustomerCompany { get; set; }
+        public string ContractorCompany { get; set; }
+        public int Priority { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public int ManagerId { get; set; }
+    }
+    private bool isLoading = true;
+    private List<Project> projects = new();
+    private Dictionary<int, EmployeeModel> managersCache = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadProjects()
+    {
+        projects = await Http.GetFromJsonAsync<List<Project>>("api/projects");
+    }
+    private async Task LoadData()
+    {
+        try
+        {
+            isLoading = true;
+
+            projects = await Http.GetFromJsonAsync<List<Project>>("api/projects")
+                ?? new List<Project>();
+
+            var managerIds = projects
+                .Select(p => p.ManagerId)
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+
+            if (managerIds.Any())
+            {
+                var ids=string.Join(",", managerIds);
+                var managers = await Http.GetFromJsonAsync<List<EmployeeModel>>($"api/employee/ids-by?ids={ids}");
+                managersCache = managers.ToDictionary(m => m.Id);
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+    private string GetManagerName(int managerId)
+    {
+        return managersCache.TryGetValue(managerId, out var manager)
+            ? $"{manager.LastName} {manager.FirstName}"
+            : "Не назначен";
+    }
+    private async Task DeleteProject(int id)
+    {
+        var response = await Http.DeleteAsync($"api/projects/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadData();
+        }
+    }
+}

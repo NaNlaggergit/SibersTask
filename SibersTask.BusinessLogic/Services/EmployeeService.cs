@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SibersTask.Domain.Entities;
 using SibersTask.Infrastructure.Data;
+using System.Threading.Tasks;
 
 namespace SibersTask.BusinessLogic.Services
 {
@@ -16,7 +17,24 @@ namespace SibersTask.BusinessLogic.Services
             await _db.SaveChangesAsync();
             return entity;
         }
+        public async Task<List<Employee>> GetByIdsAsync(string ids)
+        {
+            var idList = ids.Split(',')
+                .Select(int.Parse)
+                .Distinct()
+                .ToList();
 
+            return await _db.Employees
+                .Where(e => idList.Contains(e.Id))
+                .Select(e => new Employee
+                {
+                    Id = e.Id,
+                    FirstName = e.FirstName,
+                    LastName = e.LastName,
+                    MiddleName = e.MiddleName
+                })
+                .ToListAsync();
+        }
         public async Task<Employee?> GetByIdAsync(int id)
             => await _db.Employees.FindAsync(id);
 
@@ -38,6 +56,16 @@ namespace SibersTask.BusinessLogic.Services
             _db.Employees.Remove(entity);
             await _db.SaveChangesAsync();
             return true;
+        }
+        public async Task<IEnumerable<Employee>> SearchAsync(string searchTerm)
+        {
+            return await _db.Employees
+                .Where(e =>
+                    e.LastName.Contains(searchTerm) ||
+                    e.FirstName.Contains(searchTerm) ||
+                    e.MiddleName.Contains(searchTerm))
+                .Take(10) // Ограничиваем количество результатов для производительности
+                .ToListAsync();
         }
     }
 }

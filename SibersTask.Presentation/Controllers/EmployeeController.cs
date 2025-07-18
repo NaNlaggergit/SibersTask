@@ -19,6 +19,13 @@ namespace SibersTask.Presentation.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        [HttpGet("ids-by")]
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesByIds([FromQuery] string ids)
+        {
+            var res = await _service.GetByIdsAsync(ids);
+            if (res == null) return NotFound();
+            return Ok(res);
+        }
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetById(int id)
         {
@@ -34,10 +41,21 @@ namespace SibersTask.Presentation.Controllers
             return Ok(list);
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Employee>>> Search(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                return BadRequest("Search term cannot be empty");
+            }
+
+            var results = await _service.SearchAsync(term);
+            return Ok(results);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Employee entity)
         {
-            if (id != entity.Id) return BadRequest();
             var updated = await _service.UpdateAsync(entity);
             if (!updated) return NotFound();
             return NoContent();

@@ -1,0 +1,99 @@
+﻿@using System.Threading
+@using BlazorPage.Models
+@inject HttpClient Http
+
+<div class="dropdown" @onfocusout="CloseDropdown">
+    <input type="text"
+           class="form-control"
+           @bind="SearchTerm"
+           @bind:event="oninput"
+           @bind:after="HandleInput"
+           placeholder="@Placeholder" />
+    
+    @if (ShowDropdown && FilteredEmployees != null)
+    {
+        <div class="dropdown-menu show" style="display: block; width: 100%;">
+            @if (FilteredEmployees.Any())
+            {
+                foreach (var employee in FilteredEmployees)
+                {
+                    <button class="dropdown-item" type="button" @onclick="() => SelectEmployee(employee)">
+                        @employee.LastName @employee.FirstName @employee.MiddleName
+                    </button>
+                }
+            }
+            else
+            {
+                <span class="dropdown-item">Сотрудники не найдены</span>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int SelectedEmployeeId { get; set; }
+    [Parameter] public EventCallback<int> SelectedEmployeeIdChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Начните вводить имя...";
+
+    private string SearchTerm { get; set; } = string.Empty;
+    private IEnumerable<EmployeeModel> FilteredEmployees { get; set; }
+    private bool ShowDropdown { get; set; }
+    private CancellationTokenSource _cts;
+
+    private async Task HandleInput()
+    {
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+        
+        ShowDropdown = true;
+        
+        if (string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            FilteredEmployees = null;
+            return;
+        }
+
+        try
+        {
+            await Task.Delay(300, _cts.Token);
+            FilteredEmployees = await Http.GetFromJsonAsync<List<EmployeeModel>>($"api/employee/search?term={SearchTerm}");
+        }
+        catch (TaskCanceledException)
+        {
+            // Запрос был отменен
+        }
+    }
+
+    private async Task SelectEmployee(EmployeeModel employee)
+    {
+        SelectedEmployeeId = employee.Id;
+        SearchTerm = $"{employee.LastName} {employee.FirstName} {employee.MiddleName}";
+        FilteredEmployees = null;
+        ShowDropdown = false;
+        await SelectedEmployeeIdChanged.InvokeAsync(employee.Id);
+    }
+
+    private void CloseDropdown()
+    {
+        Task.Delay(200).ContinueWith(_ => 
+        {
+            InvokeAsync(() => 
+            {
+                ShowDropdown = false;
+                StateHasChanged();
+            });
+        });
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (SelectedEmployeeId > 0 && string.IsNullOrEmpty(SearchTerm))
+        {
+            var employee = await Http.GetFromJsonAsync<EmployeeModel>($"api/employee/{SelectedEmployeeId}");
+            if (employee != null)
+            {
+                SearchTerm = $"{employee.LastName} {employee.FirstName} {employee.MiddleName}";
+            }
+        }
+    }
+}

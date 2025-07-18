@@ -1,0 +1,63 @@
+﻿@page "/employees/edit/{id:int}"
+@using System.ComponentModel.DataAnnotations
+@using BlazorPage.Models
+@inject HttpClient Http
+<h3>Создание сотрудника</h3>
+
+<EditForm Model="@employee" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="firstName" class="form-label">Имя</label>
+        <InputText id="firstName" class="form-control" @bind-Value="employee.FirstName" />
+        <ValidationMessage For="@(() => employee.FirstName)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="lastName" class="form-label">Фамилия</label>
+        <InputText id="lastName" class="form-control" @bind-Value="employee.LastName" />
+        <ValidationMessage For="@(() => employee.LastName)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="middleName" class="form-label">Отчество</label>
+        <InputText id="middleName" class="form-control" @bind-Value="employee.MiddleName" />
+        <ValidationMessage For="@(() => employee.MiddleName)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="employee.Email" />
+        <ValidationMessage For="@(() => employee.Email)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Изменить сотрудника</button>
+</EditForm>
+
+@if (successMessage != null)
+{
+    <div class="alert alert-success mt-3">@successMessage</div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private EmployeeModel employee = new();
+    private string? successMessage;
+
+    private async Task HandleValidSubmit()
+    {
+        employee.Id = Id;
+        var response = await Http.PutAsJsonAsync($"api/employee/{Id}", employee);
+
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Сотрудник успешно изменён!";
+            //employee = new(); // если нужно очистить форму
+        }
+        else
+        {
+            successMessage = $"Ошибка при изменении сотрудника: {response.ReasonPhrase}";
+        }
+    }
+}

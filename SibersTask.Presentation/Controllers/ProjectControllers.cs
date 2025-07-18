@@ -8,14 +8,14 @@ namespace SibersTask.Presentation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectsController : ControllerBase
+    public class ProjectsController : Controller
     {
         private readonly ProjectService _service;
 
         public ProjectsController(ProjectService service) => _service = service;
 
         [HttpPost]
-        public async Task<ActionResult<Project>> Create(Project entity)
+        public async Task<ActionResult<Project>> Create(dynamic entity)
         {
             var created = await _service.CreateAsync(entity);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
@@ -37,9 +37,8 @@ namespace SibersTask.Presentation.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Project entity)
+        public async Task<IActionResult> Update(dynamic entity)
         {
-            if (id != entity.Id) return BadRequest();
             var updated = await _service.UpdateAsync(entity);
             if (!updated) return NotFound();
             return NoContent();

@@ -10,12 +10,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .EnableSensitiveDataLogging() // Показывает параметры в логах
         .LogTo(Console.WriteLine, LogLevel.Information)
         );
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy.WithOrigins("https://localhost:7022", "http://localhost:5002") // адреса твоего Blazor фронта
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<EmployeeService>();
 // Add services to the container.
  
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -27,7 +38,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowBlazorClient");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
