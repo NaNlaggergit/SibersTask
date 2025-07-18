@@ -18,7 +18,8 @@
    - Кликаем правой кнопкой на Solution
    - Выбираем "Configure Startup Projects"
    - Настраиваем как на скриншоте (обязательно выбираем HTTPS)
-   ![Настройка Startup Projects](https://github.com/user-attachments/assets/c87e150a-572e-43ef-bbdf-bfa63efeb2e7")
+   <img width="780" height="541" alt="image" src="https://github.com/user-attachments/assets/c859fd99-fc33-45e0-bfeb-427c2eeacd59" />
+
 
 6. **Запуск проекта**
    - После запуска откроется две веб-странички
